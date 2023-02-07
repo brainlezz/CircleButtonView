@@ -5,12 +5,12 @@
     android:layout_height="match_parent"
     android:background="@color/purple_200"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
     <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.2">
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.6">
 
         <de.brainlezz.custom.CircleButtonView
             android:id="@+id/circleButtonView"
@@ -30,9 +30,10 @@
 
     </FrameLayout>
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_weight="0.25"
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_weight="0.4"
+        android:layout_marginBottom="40dp"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -41,6 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="15"
+            android:min="0"
             android:progress="5" />
 
         <SeekBar
@@ -48,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:max="40"
+            android:max="30"
             android:progress="6" />
 
         <SeekBar
