@@ -5,7 +5,6 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
 import java.lang.Integer.min
 import kotlin.math.*
 
@@ -20,7 +19,7 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
         const val DEFAULT_ANGLE_OFFSET = 0f
         const val DEFAULT_CIRCLE_ELEMENT_COUNT = 4
         const val DEFAULT_ELEMENT_SPACING = 10
-
+        const val DEFAULT_CENTER_ENABLED = true
 
         const val NOTHING_TOUCHED_ELEMENT = -1
         const val INNER_CIRCLE_ELEMENT = 0
@@ -43,6 +42,10 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
 
     interface OnElementClickedListener{
         fun onElementClicked(index : Int)
+    }
+
+    interface IconProvider {
+        fun getIconForIndex(index : Int) : Bitmap?
     }
 
     var angleOffset = DEFAULT_ANGLE_OFFSET
@@ -116,6 +119,12 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
             update()
         }
 
+    var centerEnabled: Boolean = DEFAULT_CENTER_ENABLED
+        set(value) {
+            field = value
+            update()
+        }
+
     init {
         init(context, attrs)
     }
@@ -145,6 +154,9 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
             .also { borderWidth = it }
         attributes.getInteger(R.styleable.CircleButtonView_innerCirclePortion, DEFAULT_INNER_CIRCLE_PORTION)
             .also { if (it != 0) innerCirclePortion = it }
+
+        attributes.getBoolean(R.styleable.CircleButtonView_centerEnabled, DEFAULT_CENTER_ENABLED)
+            .also { centerEnabled = it }
 
         attributes.recycle()
     }
@@ -194,33 +206,35 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
             (y - circleCenter).toDouble().pow(2.0)
         )
 
-        touchedAngle = Math.toDegrees(
-            atan2(
-                (y - circleCenter).toDouble(),
-                (x - circleCenter).toDouble()
-            )
-        ).toFloat() + 90
-
-
         if(centerDistance < radiusInnerCircle) {
             return INNER_CIRCLE_ELEMENT
         }
-        else if (centerDistance <= circleDiameter/2){
-            var startAngle = if(touchedAngle > 0) touchedAngle else 180 + (180 + touchedAngle)
-            startAngle = (startAngle - angleOffset).mod(360f)
+        else if (centerDistance < circleDiameter/2){
+            touchedAngle = Math.toDegrees(
+                atan2(
+                    (y - circleCenter).toDouble(),
+                    (x - circleCenter).toDouble()
+                )
+            ).toFloat()
+
+
+            var startAngle = if(touchedAngle > 0) touchedAngle else 180f + (180f + touchedAngle)
+            // we need to add 90° here, because this is giving us a x-axis dependent angleR
+            startAngle = (startAngle + 90f - angleOffset).mod(360f)
 
             // +1 because 0 is our inner circle
             touchedElement = 1 +  (startAngle / (360f/circleElementCount)).toInt()
             //Toast.makeText(context, "${touchedElement.toString()}", Toast.LENGTH_SHORT).show()
             return touchedElement
-        }
+            }
         return NOTHING_TOUCHED_ELEMENT
     }
 
     private fun notifyListeners(){
-        for(listener : OnElementClickedListener in clickedListeners)
-                listener.onElementClicked(touchedElement)
-
+        for(listener : OnElementClickedListener in clickedListeners) {
+            if (touchedElement == INNER_CIRCLE_ELEMENT && !centerEnabled) return
+            listener.onElementClicked(touchedElement)
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -290,9 +304,9 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
 
         // draw outer circle
         canvasBitmap.drawCircle(
-            circleCenter.toFloat(),
-            circleCenter.toFloat(),
-            circleCenter.toFloat() - borderWidth,
+            circleCenter,
+            circleCenter,
+            circleCenter - borderWidth,
             outerPaint
         )
 
@@ -300,61 +314,73 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
         if (touchedElement > INNER_CIRCLE_ELEMENT){
             var angleElement = 360f / circleElementCount
             // -1 because element 0 is the inner circle
-            var angleStart = (touchedElement-1) * (360/circleElementCount) - 90
-            var borderWidthFloat = borderWidth.toFloat()
+            var angleStart = (touchedElement-1) * (360f/circleElementCount) - 90
+            var borderSpacing = borderWidth.toFloat()
             canvasBitmap.drawArc(
                 RectF(
-                    borderWidthFloat,borderWidthFloat,
-                    circleDiameter.toFloat() -borderWidthFloat ,circleDiameter.toFloat() - borderWidthFloat
+                    borderSpacing, borderSpacing,
+                    circleDiameter.toFloat() - borderWidth ,circleDiameter.toFloat()- borderWidth
                 ),
                 angleStart + angleOffset, angleElement, true, highlightPaint)
+
+
         }
 
         // draw outer circle inner border
-        canvasBitmap.drawCircle(
-            circleCenter.toFloat(),
-            circleCenter.toFloat(),
-            radiusInnerCircle,
-            borderPaint
-        )
+        if(borderWidth > 0){
+            canvasBitmap.drawCircle(
+                circleCenter,
+                circleCenter,
+                radiusInnerCircle,
+                borderPaint
+            )
+        }
 
         // draw lines
-        canvasBitmap.save()
-        canvasBitmap.rotate(angleOffset, circleCenter, circleCenter)
-        val elementAngle = 360f / circleElementCount
-        for(i in 0 until circleElementCount){
-            var startX = circleCenter
-            var startY = circleCenter
-            var angle = (elementAngle * i).toDouble() * PI / 180
-            var endX  = startX + circleDiameter/2 * sin(angle)
-            var endY  = startY - circleDiameter/2 * cos(angle)
+        if(borderWidth > 0 || elementSpacing > 0){
+            canvasBitmap.save()
+            canvasBitmap.rotate(angleOffset, circleCenter, circleCenter)
+            val elementAngle = 360f / circleElementCount
+            for(i in 0 until circleElementCount){
+                var startX = circleCenter
+                var startY = circleCenter
+                var angle = (elementAngle * i).toDouble() * PI / 180
+                var endX  = startX + circleDiameter/2f * sin(angle)
+                var endY  = startY - circleDiameter/2f * cos(angle)
 
-            if(elementSpacing > 0)
-                borderPaint.strokeWidth = 2f * borderWidth + elementSpacing
+                if(elementSpacing > 0)
+                    borderPaint.strokeWidth = 2f * borderWidth + elementSpacing
+                // draw border
+                canvasBitmap.drawLine(startX, startY, endX.toFloat(), endY.toFloat(), borderPaint)
 
-            canvasBitmap.drawLine(startX, startY, endX.toFloat(), endY.toFloat(), borderPaint)
-
-            if(elementSpacing > 0)
-                canvasBitmap.drawLine(startX, startY, endX.toFloat(), endY.toFloat(), spacingPaint)
-
+                if(elementSpacing > 0) {
+                    // draw spacing
+                    // when border and spacing have the same length there is a tiny shadow of the border
+                    // left. To avoid this we are adding 1 to the spacing beam length
+                    endX  = startX + (circleDiameter/2f+1f) * sin(angle)
+                    endY  = startY - (circleDiameter/2f+1f) * cos(angle)
+                    canvasBitmap.drawLine(startX, startY, endX.toFloat(), endY.toFloat(), spacingPaint)
+                }
+            }
+            canvasBitmap.restore()
         }
-        canvasBitmap.restore()
 
         // draw inner circle spacing and border
         if(elementSpacing > 0){
             // draw inner circle border
             canvasBitmap.drawCircle(
-                circleCenter.toFloat(),
-                circleCenter.toFloat(),
+                circleCenter,
+                circleCenter,
                 radiusInnerCircle - borderWidth,
                 spacingPaint
             )
-            canvasBitmap.drawCircle(
-                circleCenter.toFloat(),
-                circleCenter.toFloat(),
-                radiusInnerCircle - (borderWidth + elementSpacing),
-                borderPaint
-            )
+            if(borderWidth > 0)
+                canvasBitmap.drawCircle(
+                    circleCenter,
+                    circleCenter,
+                    radiusInnerCircle - (borderWidth + elementSpacing),
+                    borderPaint
+                )
         }
 
         // draw inner circle and highlight if touched
@@ -363,10 +389,10 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
             innerCircleRadius -= (elementSpacing + borderWidth)
 
         canvasBitmap.drawCircle(
-            circleCenter.toFloat(),
-            circleCenter.toFloat(),
+            circleCenter,
+            circleCenter,
             innerCircleRadius,
-            if (touchedElement == INNER_CIRCLE_ELEMENT) highlightPaint else innerPaint
+            if (touchedElement == INNER_CIRCLE_ELEMENT && centerEnabled) highlightPaint else innerPaint
         )
 
         if(iconProvider != null){
