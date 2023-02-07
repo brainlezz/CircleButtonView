@@ -1,0 +1,60 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId = libraryGroupId
+                artifactId = libraryArtifactId
+                version = libraryVersion
+
+                from components.release
+
+                pom {
+                    name = libraryName
+                    packaging = 'aar'
+                    description = libraryDesc
+                    url = "https://github.com/brainlezz/$libraryName"
+
+                    scm {
+                        connection = "scm:git:https://github.com/brainlezz/$libraryName"
+                        developerConnection = "scm:git:https://github.com/brainlezz/$libraryName"
+                        url = "https://github.com/brainlezz/$libraryName"
+                    }
+                    licenses {
+                        license {
+                            name = 'The Apache Software License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'brainlezz'
+                            name = 'Ramon Schubert'
+                            email = 'ramonschubert@gmx.de'
+                            url = 'https://github.com/brainlezz'
+                        }
+                    }
+                }
+            }
+        }
+        /*
+        repositories {
+            maven {
+                name = "ossrh"
+                url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                credentials {
+                    username = ossrhUsername
+                    password = ossrhPassword
+                }
+            }
+        }
+
+         */
+    }
+}
+
+signing {
+    sign publishing.publications
+}

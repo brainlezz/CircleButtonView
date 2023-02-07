@@ -1,0 +1,52 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+ext {
+    // LIBRARY VERSION
+    androidVersionCode          = 1
+    androidVersionName          = "0.0.1"
+
+    // LIBRARY INFORMATION
+    libraryGroupId              = 'de.brainlezz'
+    libraryArtifactId           = 'circlebuttons'
+    libraryVersion              = androidVersionName
+    libraryName                 = "CircleButtonView"
+    libraryDesc                 = "This is an Android project allowing to create button arranged in a circular way around a center button"
+
+    // ANDROID VERSION
+    androidCompileSdkVersion    = 33
+    androidMinSdkVersion        = 14
+    androidTargetSdkVersion     = 33
+
+    // KOTLIN
+    kotlinCore                  = "androidx.core:core-ktx:1.7.0"
+
+    // ANDROID LIB
+    androidXAppCompat           = "androidx.appcompat:appcompat:1.5.0"
+
+    // UI
+    lobsterPicker               = "com.larswerkman:lobsterpicker:1.0.1"
+
+    // DEPENDENCY CHECK STRATEGY
+    dependencyUpdatesStrategy = {
+        def isNonStable = { String version ->
+            def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { keyword ->
+                version.toUpperCase().contains(keyword)
+            }
+            def regex = /^[0-9,.v-]+(-r)?$/
+            return !stableKeyword && !(version ==~ regex)
+        }
+        componentSelection {
+            all {
+                if (isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)) {
+                    reject('Release candidate')
+                }
+            }
+        }
+    }
+
+}

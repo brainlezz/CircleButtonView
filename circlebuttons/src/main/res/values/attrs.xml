@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="CircleButtonView">
+        <attr name="cb_inner_color" format="color" />
+        <attr name="cb_outer_color" format="color" />
+        <attr name="cb_highlight_color" format="color" />
+        <attr name="cb_border_color" format="color" />
+
+        <attr name="cb_angle_offset" format="integer" />
+        <attr name="cb_element_count" format="integer" />
+        <attr name="cb_element_spacing" format="integer" />
+        <attr name="cb_border_width" format="integer" />
+        <attr name="cb_inner_circle_portion" format="integer" />
+
+        <attr name="cb_center_enabled" format="boolean" />
+    </declare-styleable>
+</resources>
