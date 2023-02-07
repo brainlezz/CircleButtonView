@@ -2,17 +2,17 @@
 <resources>
 
     <declare-styleable name="CircleButtonView">
-        <attr name="innerColor" format="color" />
-        <attr name="outerColor" format="color" />
-        <attr name="highlightColor" format="color" />
-        <attr name="borderColor" format="color" />
+        <attr name="cb_inner_color" format="color" />
+        <attr name="cb_outer_color" format="color" />
+        <attr name="cb_highlight_color" format="color" />
+        <attr name="cb_border_color" format="color" />
 
-        <attr name="angleOffset" format="integer" />
-        <attr name="elementCount" format="integer" />
-        <attr name="elementSpacing" format="integer" />
-        <attr name="customBorderWidth" format="integer" />
-        <attr name="innerCirclePortion" format="integer" />
+        <attr name="cb_angle_offset" format="integer" />
+        <attr name="cb_element_count" format="integer" />
+        <attr name="cb_element_spacing" format="integer" />
+        <attr name="cb_border_width" format="integer" />
+        <attr name="cb_inner_circle_portion" format="integer" />
 
-        <attr name="centerEnabled" format="boolean" />
+        <attr name="cb_center_enabled" format="boolean" />
     </declare-styleable>
 </resources>

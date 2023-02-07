@@ -135,30 +135,28 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
     private fun init(context: Context, attrs: AttributeSet) {
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.CircleButtonView)
 
-        attributes.getColor(R.styleable.CircleButtonView_innerColor, DEFAULT_COLOR)
-            .also {
-                if (it != 0) innerColor = it
-            }
-        attributes.getColor(R.styleable.CircleButtonView_outerColor, DEFAULT_COLOR)
+        attributes.getColor(R.styleable.CircleButtonView_cb_inner_color, DEFAULT_COLOR)
+            .also { if (it != 0) innerColor = it }
+        attributes.getColor(R.styleable.CircleButtonView_cb_outer_color, DEFAULT_COLOR)
             .also { if (it != 0) outerColor = it }
-        attributes.getColor(R.styleable.CircleButtonView_highlightColor, DEFAULT_HIGHLIGHT_COLOR)
+        attributes.getColor(R.styleable.CircleButtonView_cb_highlight_color, DEFAULT_HIGHLIGHT_COLOR)
             .also { if (it != 0) highlightColor = it }
-        attributes.getColor(R.styleable.CircleButtonView_borderColor, DEFAULT_BORDER_COLOR)
+        attributes.getColor(R.styleable.CircleButtonView_cb_border_color, DEFAULT_BORDER_COLOR)
             .also { if (it != 0) borderColor = it }
 
-        attributes.getInteger(R.styleable.CircleButtonView_angleOffset, DEFAULT_ANGLE_OFFSET.toInt())
+        attributes.getInteger(R.styleable.CircleButtonView_cb_angle_offset, DEFAULT_ANGLE_OFFSET.toInt())
             .also { angleOffset = it.toFloat() }
 
-        attributes.getInteger(R.styleable.CircleButtonView_elementCount, DEFAULT_CIRCLE_ELEMENT_COUNT)
+        attributes.getInteger(R.styleable.CircleButtonView_cb_element_count, DEFAULT_CIRCLE_ELEMENT_COUNT)
             .also { if (it != 0) circleElementCount = it }
-        attributes.getInteger(R.styleable.CircleButtonView_elementSpacing, DEFAULT_ELEMENT_SPACING)
+        attributes.getInteger(R.styleable.CircleButtonView_cb_element_spacing, DEFAULT_ELEMENT_SPACING)
             .also { elementSpacing = it }
-        attributes.getInteger(R.styleable.CircleButtonView_customBorderWidth, DEFAULT_BORDER_WIDTH)
+        attributes.getInteger(R.styleable.CircleButtonView_cb_border_width, DEFAULT_BORDER_WIDTH)
             .also { borderWidth = it }
-        attributes.getInteger(R.styleable.CircleButtonView_innerCirclePortion, DEFAULT_INNER_CIRCLE_PORTION)
+        attributes.getInteger(R.styleable.CircleButtonView_cb_inner_circle_portion, DEFAULT_INNER_CIRCLE_PORTION)
             .also { if (it != 0) innerCirclePortion = it }
 
-        attributes.getBoolean(R.styleable.CircleButtonView_centerEnabled, DEFAULT_CENTER_ENABLED)
+        attributes.getBoolean(R.styleable.CircleButtonView_cb_center_enabled, DEFAULT_CENTER_ENABLED)
             .also { centerEnabled = it }
 
         attributes.recycle()
