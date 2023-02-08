@@ -11,7 +11,7 @@ ext {
     androidVersionName          = "0.0.1"
 
     // LIBRARY INFORMATION
-    libraryGroupId              = 'de.brainlezz'
+    libraryGroupId              = 'io.github.brainlezz'
     libraryArtifactId           = 'circlebuttons'
     libraryVersion              = androidVersionName
     libraryName                 = "CircleButtonView"
