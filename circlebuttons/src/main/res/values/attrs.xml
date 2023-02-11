@@ -14,5 +14,7 @@
         <attr name="cb_inner_circle_portion" format="integer" />
 
         <attr name="cb_center_enabled" format="boolean" />
+        <attr name="cb_inner_spacing_enabled" format="boolean" />
+        <attr name="cb_outer_spacing_enabled" format="boolean" />
     </declare-styleable>
 </resources>

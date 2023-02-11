@@ -21,6 +21,8 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
         const val DEFAULT_CIRCLE_ELEMENT_COUNT = 4
         const val DEFAULT_ELEMENT_SPACING = 10
         const val DEFAULT_CENTER_ENABLED = true
+        const val DEFAULT_INNER_SPACING_ENABLED = true
+        const val DEFAULT_OUTER_SPACING_ENABLED = false
 
         const val NOTHING_TOUCHED_ELEMENT = -1
         const val INNER_CIRCLE_ELEMENT = 0
@@ -130,6 +132,18 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
             update()
         }
 
+    var innerSpacingEnabled: Boolean = DEFAULT_INNER_SPACING_ENABLED
+        set(value) {
+            field = value
+            update()
+        }
+
+    var outerSpacingEnabled: Boolean = DEFAULT_OUTER_SPACING_ENABLED
+        set(value) {
+            field = value
+            update()
+        }
+
     init {
         init(context, attrs)
     }
@@ -160,6 +174,11 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
 
         attributes.getBoolean(R.styleable.CircleButtonView_cb_center_enabled, DEFAULT_CENTER_ENABLED)
             .also { centerEnabled = it }
+        attributes.getBoolean(R.styleable.CircleButtonView_cb_inner_spacing_enabled, DEFAULT_INNER_SPACING_ENABLED)
+            .also { innerSpacingEnabled = it }
+        attributes.getBoolean(R.styleable.CircleButtonView_cb_outer_spacing_enabled, DEFAULT_OUTER_SPACING_ENABLED)
+            .also { outerSpacingEnabled = it }
+
 
         attributes.recycle()
     }
@@ -342,10 +361,11 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
         }
 
         // draw lines
-        if(borderWidth > 0 || elementSpacing > 0){
+        if((borderWidth > 0 || elementSpacing > 0)){
             canvasBitmap.save()
             canvasBitmap.rotate(angleOffset, circleCenter, circleCenter)
             val elementAngle = 360f / circleElementCount
+            val drawSpacing = elementSpacing > 0 && outerSpacingEnabled
             for(i in 0 until circleElementCount){
                 var startX = circleCenter
                 var startY = circleCenter
@@ -353,12 +373,12 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
                 var endX  = startX + circleDiameter/2f * sin(angle)
                 var endY  = startY - circleDiameter/2f * cos(angle)
 
-                if(elementSpacing > 0)
+                if(drawSpacing)
                     borderPaint.strokeWidth = 2f * borderWidth + elementSpacing
                 // draw border
                 canvasBitmap.drawLine(startX, startY, endX.toFloat(), endY.toFloat(), borderPaint)
 
-                if(elementSpacing > 0) {
+                if(drawSpacing) {
                     // draw spacing
                     // when border and spacing have the same length there is a tiny shadow of the border
                     // left. To avoid this we are adding 1 to the spacing beam length
@@ -371,7 +391,7 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
         }
 
         // draw inner circle spacing and border
-        if(elementSpacing > 0){
+        if(elementSpacing > 0 && innerSpacingEnabled){
             // draw inner circle border
             canvasBitmap.drawCircle(
                 circleCenter,
@@ -388,9 +408,21 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
                 )
         }
 
+        // redraw inner circle border if inner spacing is disabled because the lines will draw over it
+        if(!innerSpacingEnabled)
+            // draw outer circle inner border
+            if(borderWidth > 0){
+                canvasBitmap.drawCircle(
+                    circleCenter,
+                    circleCenter,
+                    radiusInnerCircle,
+                    borderPaint
+                )
+            }
+
         // draw inner circle and highlight if touched
         var innerCircleRadius =  radiusInnerCircle - borderWidth
-        if(elementSpacing > 0)
+        if(elementSpacing > 0 && innerSpacingEnabled)
             innerCircleRadius -= (elementSpacing + borderWidth)
 
         canvasBitmap.drawCircle(
