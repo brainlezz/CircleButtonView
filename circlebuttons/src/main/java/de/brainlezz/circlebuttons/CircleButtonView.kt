@@ -39,6 +39,8 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
     private var radiusInnerCircle = 0f
     private var touchedElement = NOTHING_TOUCHED_ELEMENT
     private var touchedAngle = 0f
+    private var centerX = 0
+    private var centerY = 0
 
     private var clickedListeners = ArrayList<OnElementClickedListener>()
 
@@ -184,6 +186,8 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
     private fun update(){
         val usableWidth = (width - 2*borderWidth) - (paddingLeft + paddingRight)
         val usableHeight = (height - 2* borderWidth) - (paddingTop + paddingBottom)
+        centerX = usableWidth / 2
+        centerY = usableHeight / 2
         circleDiameter = min(usableWidth, usableHeight)
         circleCenter = circleDiameter / 2f
         radiusInnerCircle = innerCirclePortion.toFloat() * circleCenter / 100
@@ -192,7 +196,7 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
     }
 
     private fun updateColors(){
-        outerPaint.color = outerColor//if(touchedElement > 0) Color.LTGRAY else outerColor
+        outerPaint.color = outerColor
         innerPaint.color = innerColor
         highlightPaint.color = highlightColor
         borderPaint.color = borderColor
@@ -203,8 +207,8 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
 
     private fun getTouchedElementIndex(x : Float, y : Float) : Int {
         val centerDistance = sqrt(
-            (x - circleCenter).toDouble().pow(2.0) +
-            (y - circleCenter).toDouble().pow(2.0)
+            (x - centerX).toDouble().pow(2.0) +
+            (y - centerY).toDouble().pow(2.0)
         )
 
         if(centerDistance < radiusInnerCircle) {
@@ -213,8 +217,8 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
         else if (centerDistance < circleDiameter/2){
             touchedAngle = Math.toDegrees(
                 atan2(
-                    (y - circleCenter).toDouble(),
-                    (x - circleCenter).toDouble()
+                    (y - centerY).toDouble(),
+                    (x - centerX).toDouble()
                 )
             ).toFloat()
 
@@ -403,7 +407,8 @@ class CircleButtonView(context: Context, attrs: AttributeSet) : View(context, at
                 drawIcon(canvasBitmap, i)
             }
         }
-        canvas.drawBitmap(bitmap, 0f, 0f, null)
+        canvas.drawBitmap(bitmap, centerX - circleDiameter/2f, centerY - circleDiameter/2f, null)
+        super.onDraw(canvas)
     }
 
 }
